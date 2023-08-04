@@ -1,7 +1,6 @@
 use reqwest::blocking::Client;
 use anyhow::*;
 use graphql_client::{reqwest::post_graphql_blocking as post_graphql, GraphQLQuery};
-use log::*;
 use core::result::Result::Ok;
 #[allow(clippy::upper_case_acronyms)]
 type URI = String;
@@ -9,8 +8,7 @@ type URI = String;
 #[derive(GraphQLQuery)]
 #[graphql(
     schema_path = "schema.graphql",
-    query_path = "query.graphql",
-    response_derives = "Debug"
+    query_path = "query.graphql"
 )]
 struct RepoView;
 
@@ -23,7 +21,6 @@ fn parse_repo_name(repo_name: &str) -> Result<(&str, &str), anyhow::Error> {
 }
 
 pub fn get_repo_info() -> Result<String, anyhow::Error> {
-    env_logger::init();
 
     let github_api_token = "YOUR GITHUB API TOKEN";
 
@@ -49,8 +46,6 @@ pub fn get_repo_info() -> Result<String, anyhow::Error> {
     let response_body =
         post_graphql::<RepoView, _>(&client, "https://api.github.com/graphql", variables).unwrap();
 
-    info!("{:?}", response_body);
-
     let response_data: repo_view::ResponseData = response_body.data.expect("missing response data");
 
     let stars: Option<i64> = response_data
@@ -59,4 +54,33 @@ pub fn get_repo_info() -> Result<String, anyhow::Error> {
         .map(|repo| repo.stargazers.total_count);
     return Ok (format!("{}/{} - 🌟 {}", owner, name, stars.unwrap_or(0),));
 
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_repo_name_works() {
+        assert_eq!(
+            parse_repo_name("graphql-rust/graphql-client").unwrap(),
+            ("graphql-rust", "graphql-client")
+        );
+        assert!(parse_repo_name("abcd").is_err());
+    }
+
+    #[test]
+    fn test_get_repo_info() {
+        let result = get_repo_info();
+        match result {
+            Ok(info) => {
+                print!("{}", info);
+                assert!(!info.is_empty());
+            }
+            Err(e) => {
+                let error = format!("{e}");
+                print!("{}", error);
+            }
+        }
+    }
 }
