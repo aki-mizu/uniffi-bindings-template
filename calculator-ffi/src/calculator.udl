@@ -24,6 +24,8 @@ interface Calculator {
 
   i32 add(i32 a, i32 b);
 
+  string get_repo_star_count();
+
   [Throws=CalculatorError]
   i32 divide(i32 a, i32 b);
 };

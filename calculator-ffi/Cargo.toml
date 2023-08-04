@@ -13,6 +13,7 @@ path = "uniffi-bindgen.rs"
 
 [dependencies]
 uniffi = { version = "0.23.0" }
+graphql = { path = "../graphql", version = "0.1.0" }
 
 [build-dependencies]
 uniffi = { version = "0.23.0", features = ["build"] }

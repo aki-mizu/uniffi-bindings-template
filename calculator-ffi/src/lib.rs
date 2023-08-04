@@ -1,3 +1,4 @@
+use graphql::get_repo_info;
 uniffi::include_scaffolding!("calculator");
 
 pub fn welcome(name: String) -> String {
@@ -16,6 +17,19 @@ impl Calculator {
     fn get_info(&self) -> String {
         format!("Your calculator is a {} and its size is {:?}", self.info.model, self.info.size)
     }
+
+    fn get_repo_star_count(&self) -> String {
+        let result = get_repo_info();
+        match result {
+            Ok(info) => {
+                return info;
+            }
+            Err(e) => {
+                return format!("{e}");
+            }
+        }
+    }
+
 
     fn add(&self, a: i32, b: i32) -> i32 {
         a + b
